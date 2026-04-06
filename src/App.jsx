@@ -3,6 +3,8 @@ import { ensureDefaultProject, useProjectNoteCounts } from './hooks/useProjects'
 import Sidebar from './components/sidebar/Sidebar';
 import NoteCanvas from './components/canvas/NoteCanvas';
 
+import db from './db/db';
+
 export default function App() {
   const [activeProjectId, setActiveProjectId] = useState(
     () => localStorage.getItem('noteflow_active_project') || 'default'
@@ -10,10 +12,22 @@ export default function App() {
   
   const noteCounts = useProjectNoteCounts();
 
-  // Ensure default fallback exists on mount
+  // Ensure default fallback exists on mount and auto-repair any orphaned nodes
   useEffect(() => {
     ensureDefaultProject();
-  }, []);
+    
+    // Auto-repair script: restore lost projectIds to canvasNodes
+    const repairOrphanedNodes = async () => {
+      const allCanvasNodes = await db.canvasNodes.toArray();
+      const orphaned = allCanvasNodes.filter(n => !n.projectId);
+      if (orphaned.length > 0) {
+        // Fallback to activeProjectId or 'default'
+        const updates = orphaned.map(n => ({ ...n, projectId: activeProjectId || 'default' }));
+        await db.canvasNodes.bulkPut(updates);
+      }
+    };
+    repairOrphanedNodes();
+  }, [activeProjectId]);
 
   const handleSelectProject = (id) => {
     setActiveProjectId(id);

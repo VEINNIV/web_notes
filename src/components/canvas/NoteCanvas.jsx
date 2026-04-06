@@ -110,12 +110,15 @@ function CanvasInner({ projectId }) {
       const positionChanges = changes.filter((c) => c.type === 'position' && c.position);
       if (positionChanges.length > 0) {
         const updates = positionChanges.map((c) => ({
-          id: c.id, position: c.position, type: 'note',
+          id: c.id,
+          projectId: projectId, // CRITICAL: preserve the project mapping when saving!
+          position: c.position, 
+          type: 'note',
         }));
         await updateNodePositions(updates);
       }
     },
-    []
+    [projectId]
   );
 
   const onEdgesChange = useCallback(async (changes) => {
