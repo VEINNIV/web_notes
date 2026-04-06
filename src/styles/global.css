@@ -1,0 +1,180 @@
+/**
+ * global.css — NoteFlow v2 Design System
+ *
+ * Warm editorial palette: cream whites, soft violet accent, warm grays.
+ * Designed to feel clean, sophisticated, and welcoming.
+ * All values are CSS custom properties — components inherit automatically.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── Design Tokens ────────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds — warm whites */
+  --bg:        #faf8f5;
+  --surface:   #ffffff;
+  --surface-2: #f5f2ee;
+  --surface-3: #ede9e3;
+
+  /* Borders */
+  --border:    #e8e3db;
+  --border-2:  #d4cec5;
+
+  /* Text */
+  --text:      #1a1714;
+  --text-muted:#8c8780;
+  --text-dim:  #c4bfb8;
+
+  /* Primary accent — soft violet */
+  --accent:       #8b5cf6;
+  --accent-dark:  #7c3aed;
+  --accent-dim:   rgba(139, 92, 246, 0.09);
+  --accent-glow:  rgba(139, 92, 246, 0.22);
+
+  /* Semantic */
+  --danger:     #ef4444;
+  --danger-dim: rgba(239, 68, 68, 0.09);
+  --warning:    #f59e0b;
+  --success:    #10b981;
+
+  /* Card accent color slots (muted, beautiful on white) */
+  --card-violet: #8b5cf6;
+  --card-rose:   #ec4899;
+  --card-teal:   #14b8a6;
+  --card-amber:  #f59e0b;
+  --card-sky:    #3b82f6;
+  --card-emerald:#10b981;
+
+  /* Layout */
+  --sidebar-w:         240px;
+  --sidebar-collapsed: 60px;
+  --topbar-h:          52px;
+
+  /* Spacing */
+  --sp-1:  4px;  --sp-2:  8px;  --sp-3:  12px;
+  --sp-4:  16px; --sp-5:  20px; --sp-6:  24px;
+  --sp-8:  32px; --sp-10: 40px;
+
+  /* Typography */
+  --font:     'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --text-xs:  11px; --text-sm:  13px; --text-base: 15px;
+  --text-md:  17px; --text-lg:  20px; --text-xl:   24px;
+  --leading:  1.6;
+
+  /* Radii */
+  --radius-sm: 6px; --radius: 10px; --radius-lg: 16px; --radius-xl: 24px;
+
+  /* Shadows (warm-tinted) */
+  --shadow-xs: 0 1px 2px rgba(60, 40, 20, 0.06);
+  --shadow-sm: 0 2px 8px rgba(60, 40, 20, 0.08);
+  --shadow:    0 4px 20px rgba(60, 40, 20, 0.10);
+  --shadow-lg: 0 12px 40px rgba(60, 40, 20, 0.14);
+  --shadow-card: 0 2px 12px rgba(60, 40, 20, 0.09), 0 0 0 1px rgba(60, 40, 20, 0.05);
+
+  /* Transitions */
+  --ease:      cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out:  cubic-bezier(0, 0, 0.2, 1);
+  --dur-fast:  120ms; --dur: 220ms; --dur-slow: 320ms;
+}
+
+/* ── Reset ────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%; width: 100%; overflow: hidden;
+}
+
+body {
+  font-family: var(--font);
+  font-size: var(--text-base);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: var(--leading);
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* ── Focus ────────────────────────────────────────────────────────────────── */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+/* ── Selection ────────────────────────────────────────────────────────────── */
+::selection { background: rgba(139, 92, 246, 0.15); color: var(--text); }
+
+/* ── React Flow overrides ─────────────────────────────────────────────────── */
+.react-flow { background: var(--bg); }
+
+.react-flow__background pattern circle { fill: var(--border); }
+
+/* Edges */
+.react-flow__edge-path {
+  stroke: var(--border-2) !important;
+  stroke-width: 2px !important;
+}
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--accent) !important;
+}
+
+/* Edge label */
+.react-flow__edge-textbg { fill: var(--surface) !important; }
+.react-flow__edge-text {
+  fill: var(--text-muted) !important;
+  font-family: var(--font) !important;
+  font-size: var(--text-xs) !important;
+}
+
+/* Connection line while dragging */
+.react-flow__connection-path { stroke: var(--accent) !important; stroke-width: 2px !important; }
+
+/* Handles */
+.react-flow__handle {
+  width: 9px !important;
+  height: 9px !important;
+  background: var(--surface) !important;
+  border: 2px solid var(--border-2) !important;
+  border-radius: 50% !important;
+  transition: all var(--dur-fast) var(--ease);
+}
+.react-flow__handle:hover, .react-flow__handle-connecting {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  transform: scale(1.4) !important;
+}
+
+/* Controls */
+.react-flow__controls {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.react-flow__controls-button {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text-muted) !important;
+  transition: all var(--dur-fast) var(--ease);
+}
+.react-flow__controls-button:last-child { border-bottom: none !important; }
+.react-flow__controls-button:hover {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+}
+.react-flow__controls-button svg { fill: currentColor !important; }
+
+/* MiniMap */
+.react-flow__minimap {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm) !important;
+}
+.react-flow__minimap-mask { fill: rgba(250, 248, 245, 0.7) !important; }
+.react-flow__minimap-node { rx: 4; }

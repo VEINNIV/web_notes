@@ -1,0 +1,63 @@
+.path {
+  fill: none;
+  stroke: var(--border-2);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  transition: stroke var(--dur) var(--ease);
+}
+
+.pathSelected {
+  stroke: var(--accent);
+}
+
+/* Base glow (uses CSS filter for blur) */
+.glow {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 12px;
+  stroke-linecap: round;
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.glowSelected {
+  opacity: 0.15;
+}
+
+/* Animated flow overlay for selected edges */
+.flow {
+  fill: none;
+  stroke: var(--surface);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-dasharray: 6 12;
+  animation: flowAnim 1s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes flowAnim {
+  0%   { stroke-dashoffset: 18; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.label {
+  position: absolute;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  pointer-events: all;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+  font-weight: 500;
+  transition: all var(--dur-fast) var(--ease);
+  cursor: pointer;
+}
+
+.label:hover {
+  color: var(--text);
+  border-color: var(--accent-dark);
+}

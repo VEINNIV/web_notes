@@ -1,0 +1,33 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: color-mix(in srgb, var(--tag-color) 15%, transparent);
+  color: color-mix(in srgb, var(--tag-color) 70%, var(--text));
+  border: 1px solid color-mix(in srgb, var(--tag-color) 30%, transparent);
+  border-radius: var(--radius-xl);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.removeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px;
+  margin-right: -4px;
+  opacity: 0.6;
+  transition: all var(--dur-fast) var(--ease);
+}
+
+.removeBtn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.05);
+}
