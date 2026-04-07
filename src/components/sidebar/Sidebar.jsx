@@ -1,29 +1,207 @@
-/**
- * Sidebar.jsx — Project navigation panel.
- */
+import React, { useState, useMemo, useEffect } from 'react';
+import { Plus, GripVertical, MoreVertical, Edit2, Trash2, ArrowUpToLine } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
-import React, { useState } from 'react';
-import { Plus, Folder, Settings, MoreVertical } from 'lucide-react';
 import styles from './Sidebar.module.css';
-import { useAllProjects, createProject } from '../../hooks/useProjects';
+import { useAllProjects, createProject, updateProject, deleteProject } from '../../hooks/useProjects';
+import { useNotification } from '../ui/NotificationProvider';
+
+function SortableProjectItem({ proj, count, isActive, onSelectProject, onUpdate, onDelete, onPinToTop }) {
+  const [showMenu, setShowMenu] = useState(false);
+  
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: proj.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: showMenu ? 50 : (isDragging ? 40 : 0),
+    opacity: isDragging ? 0.7 : 1,
+  };
+
+  const handleRename = (e) => {
+    e.stopPropagation();
+    const newName = prompt('New project name:', proj.name);
+    if (newName && newName.trim()) {
+      onUpdate(proj.id, { name: newName.trim() });
+    }
+    setShowMenu(false);
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    const check = prompt(`Type "I'm sure" to delete project "${proj.name}"`);
+    if (check === "I'm sure") {
+      onDelete(proj.id);
+    } else if (check !== null) {
+      alert("Validation failed. Project not deleted.");
+    }
+    setShowMenu(false);
+  };
+
+  const handleTogglePin = (e) => {
+    e.stopPropagation();
+    onPinToTop(proj.id, !proj.pinned);
+    setShowMenu(false);
+  };
+
+  return (
+    <>
+      {proj.isFirstPinned && <div className={styles.sectionHeader}>PINNED</div>}
+      {proj.isFirstUnpinned && <div className={styles.sectionHeader} style={{marginTop: '16px'}}>PROJECTS</div>}
+      <li ref={setNodeRef} style={style} className={styles.projectItemWrapper}>
+      <button 
+        className={`${styles.projectBtn} ${isActive ? styles.active : ''}`}
+        onClick={() => onSelectProject(proj.id)}
+      >
+        <div {...attributes} {...listeners} className={styles.dragHandle}>
+          <GripVertical size={14} className={styles.dragIcon} />
+        </div>
+        <span className={styles.icon}>{proj.emoji}</span>
+        <span className={styles.name}>{proj.name}</span>
+        {proj.pinned && <ArrowUpToLine size={12} className={styles.pinnedIcon} style={{marginRight: 4, color: 'var(--accent)'}} />}
+        <span className={styles.count}>{count}</span>
+        
+        <div className={styles.menuWrapper}>
+          <div 
+             className={styles.menuTrigger} 
+             onClick={(e) => { e.stopPropagation(); setShowMenu(v => !v); }}
+          >
+            <MoreVertical size={14} />
+          </div>
+          
+          {showMenu && (
+            <div className={styles.contextMenu}>
+              <div className={styles.contextOverlay} onClick={(e) => { e.stopPropagation(); setShowMenu(false); }} />
+              <div className={styles.contextMenuInner}>
+                <div onClick={handleTogglePin} className={styles.contextMenuItem}>
+                   <ArrowUpToLine size={14} /> {proj.pinned ? 'Unpin' : 'Pin to top'}
+                </div>
+                <div onClick={handleRename} className={styles.contextMenuItem}>
+                   <Edit2 size={14} /> Rename
+                </div>
+                <div onClick={handleDelete} className={`${styles.contextMenuItem} ${styles.dangerText}`}>
+                   <Trash2 size={14} /> Delete
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </button>
+    </li>
+    </>
+  );
+}
 
 export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }) {
   const projects = useAllProjects();
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
+  const addToast = useNotification();
+  
+  const [localProjects, setLocalProjects] = useState([]);
+
+  useEffect(() => {
+    if (projects) {
+      const sorted = [...projects].sort((a, b) => {
+         if (a.pinned === b.pinned) return (a.order || 0) - (b.order || 0);
+         return a.pinned ? -1 : 1;
+      });
+      setLocalProjects(sorted);
+    }
+  }, [projects]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      const oldIndex = localProjects.findIndex(p => p.id === active.id);
+      const newIndex = localProjects.findIndex(p => p.id === over.id);
+      
+      const newOrder = arrayMove(localProjects, oldIndex, newIndex);
+      setLocalProjects(newOrder);
+      
+      // Persist new ordering and potential pin-state change to DB
+      newOrder.forEach((proj, idx) => {
+        // If it was dragged above/below boundaries, just save the order
+        // Updating pinned automatically based on drag boundary is complex, so we just update order for now.
+        updateProject(proj.id, { order: idx });
+      });
+    }
+  };
 
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!newName.trim()) { setAdding(false); return; }
     
-    // Pick a random emoji to be fun
     const emojis = ['🚀', '🧠', '💼', '🎨', '📝', '✨', '⚡️', '🌍'];
     const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
     
-    const id = await createProject(newName, randomEmoji);
-    setNewName('');
-    setAdding(false);
-    onSelectProject(id);
+    try {
+      const id = await createProject(newName, randomEmoji);
+      // Give the new project an order at the very end
+      await updateProject(id, { order: localProjects.length });
+      setNewName('');
+      setAdding(false);
+      onSelectProject(id);
+      addToast('Project created', 'success');
+    } catch (err) {
+      addToast('Failed to create project', 'error');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteProject(id);
+      addToast('Project deleted', 'success');
+      if (activeProjectId === id) {
+         onSelectProject('default');
+      }
+    } catch (err) {
+      addToast('Failed to delete project', 'error');
+    }
+  };
+
+  const handleUpdate = async (id, changes) => {
+    try {
+      await updateProject(id, changes);
+    } catch (err) {
+      addToast('Update failed', 'error');
+    }
+  };
+
+  const handlePinToTop = async (id, isPinned) => {
+    try {
+      await updateProject(id, { pinned: isPinned });
+      addToast(isPinned ? 'Project pinned to top' : 'Project unpinned', 'success');
+    } catch (err) {
+      addToast('Pin failed', 'error');
+    }
   };
 
   if (!projects) return <aside className={styles.sidebar}></aside>;
@@ -38,32 +216,43 @@ export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }
       </div>
 
       <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <span>PROJECTS</span>
-          <button className={styles.addButton} onClick={() => setAdding(true)} title="New Project">
+        <div style={{display:'flex', justifyContent:'space-between', padding:'8px 12px', marginTop: 8}}>
+          <button className={styles.addButton} onClick={() => setAdding(true)} title="New Project" style={{marginLeft:'auto'}}>
             <Plus size={14} />
           </button>
         </div>
 
-        <ul className={styles.projectList}>
-          {projects.map(proj => {
-            const count = noteCounts?.get(proj.id) || 0;
-            const isActive = proj.id === activeProjectId;
-            
-            return (
-              <li key={proj.id}>
-                <button 
-                  className={`${styles.projectBtn} ${isActive ? styles.active : ''}`}
-                  onClick={() => onSelectProject(proj.id)}
-                >
-                  <span className={styles.icon}>{proj.emoji}</span>
-                  <span className={styles.name}>{proj.name}</span>
-                  <span className={styles.count}>{count}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        <DndContext 
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <ul className={styles.projectList}>
+            <SortableContext 
+              items={localProjects.map(p => p.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {localProjects.map((proj, idx) => {
+                const isFirstPinned = proj.pinned && (idx === 0 || !localProjects[idx - 1].pinned);
+                const isFirstUnpinned = !proj.pinned && (idx === 0 || localProjects[idx - 1].pinned);
+                const enrichedProj = { ...proj, isFirstPinned, isFirstUnpinned };
+                
+                return (
+                  <SortableProjectItem 
+                    key={proj.id} 
+                    proj={enrichedProj} 
+                    count={noteCounts?.get(proj.id) || 0}
+                    isActive={proj.id === activeProjectId}
+                    onSelectProject={onSelectProject}
+                    onUpdate={handleUpdate}
+                    onDelete={handleDelete}
+                    onPinToTop={handlePinToTop}
+                  />
+                )
+              })}
+            </SortableContext>
+          </ul>
+        </DndContext>
 
         {adding && (
           <form className={styles.addForm} onSubmit={handleCreate}>

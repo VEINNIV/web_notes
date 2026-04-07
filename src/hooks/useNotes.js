@@ -114,7 +114,11 @@ export async function deleteNote(id) {
 // ─── CANVAS POSITION ─────────────────────────────────────────────────────────
 
 export async function updateNodePositions(nodeUpdates) {
-  await db.canvasNodes.bulkPut(nodeUpdates);
+  await db.transaction('rw', db.canvasNodes, async () => {
+    for (const update of nodeUpdates) {
+      await db.canvasNodes.update(update.id, update);
+    }
+  });
 }
 
 // ─── EDGE CRUD ────────────────────────────────────────────────────────────────

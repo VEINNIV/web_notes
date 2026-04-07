@@ -3,17 +3,32 @@
  */
 
 import React, { useCallback } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, NodeResizer } from '@xyflow/react';
 import { formatDistanceToNow } from 'date-fns';
-import { FileEdit } from 'lucide-react';
+import { Settings2 } from 'lucide-react';
 import TagPill from '../ui/TagPill';
 import ReminderBadge from '../ui/ReminderBadge';
+import { updateNote } from '../../hooks/useNotes';
 import styles from './NoteNode.module.css';
 
 const MAX_VISIBLE_TAGS = 3;
 
 export default function NoteNode({ data, selected }) {
   const { note, onOpen, isOverdue } = data;
+  
+  const [localTitle, setLocalTitle] = React.useState(note.title || '');
+  const [localContent, setLocalContent] = React.useState(note.content || '');
+
+  React.useEffect(() => {
+    setLocalTitle(note.title || '');
+    setLocalContent(note.content || '');
+  }, [note.title, note.content]);
+
+  const handleBlur = React.useCallback(() => {
+    if (localTitle !== (note.title || '') || localContent !== (note.content || '')) {
+      updateNote(note.id, { title: localTitle.trim(), content: localContent.trim() });
+    }
+  }, [localTitle, localContent, note.id, note.title, note.content]);
 
   const checklistTotal = note.checklist?.length ?? 0;
   const checklistDone = note.checklist?.filter((i) => i.done).length ?? 0;
@@ -28,37 +43,59 @@ export default function NoteNode({ data, selected }) {
 
   const handleClick = useCallback((e) => {
     if (e.target.classList.contains('react-flow__handle')) return;
+  }, []);
+
+  const handleOpenSettings = useCallback((e) => {
+    e.stopPropagation();
     onOpen?.(note.id);
   }, [note.id, onOpen]);
 
   return (
-    <div
-      className={`${styles.node} ${selected ? styles.selected : ''}`}
-      style={{ '--card-accent': note.color || '#8b5cf6' }}
-      onClick={handleClick}
-      role="button"
-    >
-      <Handle type="target" position={Position.Top} className={styles.handle} />
-      <Handle type="source" position={Position.Bottom} className={styles.handle} />
-      <Handle type="target" position={Position.Left} className={styles.handle} />
-      <Handle type="source" position={Position.Right} className={styles.handle} />
+    <>
+      <NodeResizer 
+        minWidth={200} 
+        minHeight={120} 
+        isVisible={selected} 
+        lineClassName={styles.resizeLine} 
+        handleClassName={styles.resizeHandle}
+      />
+      <div
+        className={`${styles.node} ${selected ? styles.selected : ''}`}
+        style={{ '--card-accent': note.color || '#8b5cf6' }}
+        onClick={handleClick}
+        role="button"
+      >
+        <Handle type="target" position={Position.Top} className={styles.handle} />
+        <Handle type="source" position={Position.Bottom} className={styles.handle} />
+        <Handle type="target" position={Position.Left} className={styles.handle} />
+        <Handle type="source" position={Position.Right} className={styles.handle} />
 
-      <div className={styles.accent} />
+        {/* Aesthetic Highlight Tape */}
+        <div className={styles.tapeHighlight} />
 
-      <div className={styles.body}>
+        <div className={styles.body}>
         <div className={styles.header}>
-           <p className={`${styles.title} ${!note.title ? styles.placeholder : ''}`}>
-             {note.title || 'Untitled note'}
-           </p>
-           {note.content && <FileEdit className={styles.editIcon} size={14} />}
+           <input 
+             className={`${styles.titleInput} nodrag`}
+             placeholder="Untitled note..."
+             value={localTitle}
+             onChange={e => setLocalTitle(e.target.value)}
+             onBlur={handleBlur}
+           />
+           <button className={styles.settingsBtn} onClick={handleOpenSettings} title="Open details">
+             <Settings2 size={14} />
+           </button>
         </div>
         
-        {note.content && (
-          <p className={styles.preview}>
-            {note.content.split('\n')[0].slice(0, 70)}
-            {note.content.length > 70 ? '...' : ''}
-          </p>
-        )}
+        <div className={styles.previewContainer}>
+          <textarea 
+            className={`${styles.contentInput} nodrag`}
+            placeholder="Type your notes here..."
+            value={localContent}
+            onChange={e => setLocalContent(e.target.value)}
+            onBlur={handleBlur}
+          />
+        </div>
 
         {checklistTotal > 0 && (
           <div className={styles.progressRow}>
@@ -95,5 +132,6 @@ export default function NoteNode({ data, selected }) {
         )}
       </div>
     </div>
+  </>
   );
 }

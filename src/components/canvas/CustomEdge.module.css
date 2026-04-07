@@ -1,43 +1,28 @@
-.path {
-  fill: none;
-  stroke: var(--border-2);
-  stroke-width: 2px;
+.pathBase {
   stroke-linecap: round;
-  transition: stroke var(--dur) var(--ease);
+  transition: opacity var(--dur) var(--ease), stroke-width var(--dur) var(--ease);
 }
 
-.pathSelected {
-  stroke: var(--accent);
-}
-
-/* Base glow (uses CSS filter for blur) */
-.glow {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 12px;
-  stroke-linecap: round;
-  filter: blur(8px);
-  opacity: 0;
-  transition: opacity var(--dur) var(--ease);
-}
-
-.glowSelected {
-  opacity: 0.15;
-}
-
-/* Animated flow overlay for selected edges */
+/* Animated flow overlay */
 .flow {
-  fill: none;
-  stroke: var(--surface);
-  stroke-width: 2px;
   stroke-linecap: round;
-  stroke-dasharray: 6 12;
-  animation: flowAnim 1s linear infinite;
+  stroke-width: 1.5px;
+  stroke-dasharray: 4 16;
+  opacity: 0.4;
+  animation: flowAnim 1.8s linear infinite;
   pointer-events: none;
 }
 
+.flowSelected {
+  stroke-width: 2.5px;
+  stroke-dasharray: 6 12;
+  opacity: 1;
+  animation: flowAnim 1s linear infinite;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+}
+
 @keyframes flowAnim {
-  0%   { stroke-dashoffset: 18; }
+  0%   { stroke-dashoffset: 16; }
   100% { stroke-dashoffset: 0; }
 }
 

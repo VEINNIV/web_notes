@@ -44,43 +44,45 @@ function CanvasInner({ projectId }) {
 
   const rfNodes = useMemo(() => {
     if (!notes || !canvasNodes) return [];
-    const posMap = new Map(canvasNodes.map((cn) => [cn.id, cn.position]));
-    
-    // Auto-fit if switching projects (canvasNodes changed length dramatically)
+    const posMap = new Map(canvasNodes.map((cn) => [cn.id, cn]));
     
     return notes
       .filter((n) => posMap.has(n.id))
       .map((note) => {
-        // Simple search logic: fade out non-matching
+        const cn = posMap.get(note.id);
         const isMatch = !searchQuery || note.title.toLowerCase().includes(searchQuery.toLowerCase()) || note.content?.toLowerCase().includes(searchQuery.toLowerCase());
         
         return {
           id: note.id,
           type: 'note',
-          position: posMap.get(note.id),
+          position: cn.position,
+          style: {
+             width: cn.width || undefined,
+             height: cn.height || undefined,
+             opacity: isMatch ? 1 : 0.2,
+             transition: cn.width ? 'opacity 0.2s ease' : 'opacity 0.2s ease, width 0s',
+          },
           data: {
             note,
             isOverdue: overdueIds.has(note.id),
             onOpen: setOpenNoteId,
-          },
-          style: {
-             opacity: isMatch ? 1 : 0.2,
-             transition: 'opacity 0.2s ease'
           }
         };
       });
   }, [notes, canvasNodes, overdueIds, searchQuery]);
 
   const rfEdges = useMemo(() => {
-    if (!canvasEdges) return [];
+    if (!canvasEdges || !notes) return [];
+    const noteColors = new Map(notes.map(n => [n.id, n.color]));
     return canvasEdges.map((e) => ({
       id: e.id,
       source: e.source,
       target: e.target,
       label: e.label || '',
       type: 'custom',
+      data: { color: noteColors.get(e.source) || '#8b5cf6' }
     }));
-  }, [canvasEdges]);
+  }, [canvasEdges, notes]);
 
   // FitView when nodes first load for a project
   useEffect(() => {
@@ -107,15 +109,21 @@ function CanvasInner({ projectId }) {
 
   const onNodesChange = useCallback(
     async (changes) => {
+      // Find position and dimensions updates (triggered by NodeResizer)
       const positionChanges = changes.filter((c) => c.type === 'position' && c.position);
-      if (positionChanges.length > 0) {
-        const updates = positionChanges.map((c) => ({
-          id: c.id,
-          projectId: projectId, // CRITICAL: preserve the project mapping when saving!
-          position: c.position, 
-          type: 'note',
-        }));
-        await updateNodePositions(updates);
+      const dimensionChanges = changes.filter((c) => c.type === 'dimensions' && c.dimensions);
+
+      const updatesMap = new Map();
+      const applyUpdate = (id, fields) => {
+         if (!updatesMap.has(id)) updatesMap.set(id, { id });
+         Object.assign(updatesMap.get(id), fields);
+      };
+
+      positionChanges.forEach(c => applyUpdate(c.id, { position: c.position }));
+      dimensionChanges.forEach(c => applyUpdate(c.id, { width: c.dimensions.width, height: c.dimensions.height }));
+
+      if (updatesMap.size > 0) {
+        await updateNodePositions(Array.from(updatesMap.values()));
       }
     },
     [projectId]
@@ -179,7 +187,7 @@ function CanvasInner({ projectId }) {
         maxZoom={2}
         proOptions={{ hideAttribution: true }}
       >
-        <Background variant="dots" gap={24} size={2} color="rgba(0,0,0,0.05)" />
+        <Background variant="dots" gap={24} size={1} color="var(--text)" style={{opacity: 0.04}} />
         <Controls />
         <MiniMap zoomable pannable 
            nodeColor={(n) => n.data?.note?.color || '#8b5cf6'} 

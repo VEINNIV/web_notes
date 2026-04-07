@@ -12,8 +12,12 @@ import App from './App';
 // Design system must be first — defines CSS tokens used everywhere
 import './styles/global.css';
 
+import { NotificationProvider } from './components/ui/NotificationProvider';
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <NotificationProvider>
+      <App />
+    </NotificationProvider>
   </React.StrictMode>
 );

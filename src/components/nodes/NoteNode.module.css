@@ -1,39 +1,68 @@
 .node {
-  width: 260px;
-  background: var(--surface);
+  min-width: 200px;
+  min-height: 120px;
+  width: 100%;
+  height: 100%;
+  
+  /* Tinted background using color-mix to blend the accent color into a clean white */
+  background: color-mix(in srgb, var(--card-accent) 4%, var(--surface) 96%);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 15%, transparent);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.03);
   display: flex;
-  overflow: hidden;
-  transition: all var(--dur) var(--ease);
+  flex-direction: column;
+  transition: box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
   cursor: pointer;
+  position: relative;
+}
+
+/* Subtle paper texture overlay */
+.node::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  background-image: radial-gradient(color-mix(in srgb, var(--card-accent) 15%, transparent) 1px, transparent 1px);
+  background-size: 8px 8px;
+  opacity: 0.6;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
 }
 
 .node:hover {
-  box-shadow: var(--shadow);
-  border-color: var(--border-2);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
   transform: translateY(-2px);
 }
 
 .selected {
   border-color: var(--card-accent);
-  box-shadow: var(--shadow-card), 0 0 0 1px var(--card-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--card-accent) 30%, transparent), 0 14px 36px rgba(0,0,0,0.12);
   z-index: 10;
 }
 
-.accent {
-  width: 6px;
+/* Aesthetic Highlights / Tape */
+.tapeHighlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
   background: var(--card-accent);
-  flex-shrink: 0;
+  opacity: 0.85;
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--card-accent) 40%, transparent);
+  z-index: 1;
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
 }
 
 .body {
-  padding: var(--sp-4) var(--sp-4) var(--sp-4) var(--sp-3);
+  padding: var(--sp-4);
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
+  z-index: 1;
 }
 
 .header {
@@ -43,60 +72,112 @@
   gap: var(--sp-2);
 }
 
-.title {
-  font-weight: 600;
+.titleInput {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
   font-size: var(--text-base);
   color: var(--text);
   line-height: 1.3;
   margin: 0;
+  letter-spacing: -0.01em;
+  background: transparent;
+  border: none;
+  outline: none;
+  flex: 1;
+  width: 100%;
 }
 
-.placeholder {
+.titleInput::placeholder {
   color: var(--text-dim);
   font-style: italic;
-  font-weight: 400;
+  font-weight: 500;
 }
 
-.editIcon {
-  color: var(--text-dim);
+.settingsBtn {
+  background: transparent;
+  border: none;
+  color: color-mix(in srgb, var(--card-accent) 50%, var(--text-dim));
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
-.preview {
+.settingsBtn:hover {
+  background: color-mix(in srgb, var(--card-accent) 15%, transparent);
+  color: var(--card-accent);
+}
+
+.previewContainer {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.contentInput {
+  font-family: 'Inter', sans-serif;
   font-size: var(--text-sm);
   color: var(--text-muted);
-  line-height: var(--leading);
+  line-height: 1.6;
   margin: 0;
-  white-space: pre-wrap;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  width: 100%;
+  height: 100%;
+  flex: 1;
   word-break: break-word;
+}
+
+.contentInput::placeholder {
+  color: color-mix(in srgb, var(--text-dim) 60%, transparent);
+  font-style: italic;
+}
+
+/* Gradient fade out at bottom if text is long */
+.previewContainer::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--card-accent) 5%, var(--surface)));
+  pointer-events: none;
 }
 
 .progressRow {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
+  margin-top: auto;
 }
 
 .progressBar {
   flex: 1;
-  height: 4px;
-  background: var(--surface-2);
-  border-radius: 2px;
+  height: 6px;
+  background: color-mix(in srgb, var(--card-accent) 15%, var(--surface-2));
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
   background: var(--card-accent);
-  border-radius: 2px;
+  border-radius: 3px;
   transition: width var(--dur) var(--ease);
 }
 
 .progressLabel {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--card-accent);
   font-variant-numeric: tabular-nums;
 }
 
@@ -104,10 +185,11 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  margin-top: auto;
 }
 
 .timeAgo {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
   font-weight: 500;
 }
@@ -117,8 +199,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
-  padding-top: var(--sp-2);
-  border-top: 1px dashed var(--border);
+  padding-top: var(--sp-3);
+  border-top: 1px dashed color-mix(in srgb, var(--card-accent) 30%, var(--border));
+  margin-top: auto;
 }
 
 .tags {
@@ -128,25 +211,27 @@
 }
 
 .extraTags {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  background: var(--surface-2);
+  font-size: 10px;
+  color: var(--card-accent);
+  background: color-mix(in srgb, var(--card-accent) 10%, var(--surface-2));
   padding: 2px 6px;
   border-radius: var(--radius-sm);
-  font-weight: 500;
+  font-weight: 700;
 }
 
 /* React Flow Connection Handles */
 .handle {
-  width: 10px !important;
-  height: 10px !important;
+  width: 12px !important;
+  height: 12px !important;
   background: var(--surface) !important;
   border: 2px solid var(--border-2) !important;
   opacity: 0;
+  z-index: 50 !important;
   transition: opacity var(--dur-fast) var(--ease),
               transform var(--dur-fast) var(--ease),
               border-color var(--dur-fast) var(--ease),
               background var(--dur-fast) var(--ease) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .node:hover .handle,
@@ -158,4 +243,17 @@
   transform: scale(1.4);
   border-color: var(--card-accent) !important;
   background: var(--card-accent) !important;
+}
+
+/* Resizer Handle overrides */
+.resizeHandle {
+  background-color: var(--card-accent) !important;
+  border-radius: 4px !important;
+  border: 2px solid var(--surface) !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.resizeLine {
+  border-color: var(--card-accent) !important;
 }

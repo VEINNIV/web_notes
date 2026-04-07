@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Plus, Download, Upload, Settings, X, Eye, EyeOff, Search, Maximize } from 'lucide-react';
 import { exportBackup, importBackup } from '../../utils/backup';
+import { useNotification } from '../ui/NotificationProvider';
 import styles from './Toolbar.module.css';
 
 export default function Toolbar({ onAddNote, onFitView, onSearch }) {
@@ -9,15 +10,15 @@ export default function Toolbar({ onAddNote, onFitView, onSearch }) {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('noteflow_gemini_key') || '');
   const [showKey, setShowKey] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [message, setMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const addToast = useNotification();
 
   const handleExport = async () => {
     try {
       await exportBackup();
-      flash('Backup downloaded.');
+      addToast('Backup downloaded successfully', 'success');
     } catch {
-      flash('Export failed.');
+      addToast('Export failed', 'error');
     }
   };
 
@@ -32,9 +33,9 @@ export default function Toolbar({ onAddNote, onFitView, onSearch }) {
     setImporting(true);
     try {
       await importBackup(file);
-      flash('Import successful!');
+      addToast('Import successful', 'success');
     } catch (err) {
-      flash(`Import failed: ${err.message}`);
+      addToast(`Import failed: ${err.message}`, 'error');
     } finally {
       setImporting(false);
       e.target.value = '';
@@ -43,13 +44,8 @@ export default function Toolbar({ onAddNote, onFitView, onSearch }) {
 
   const saveApiKey = () => {
     localStorage.setItem('noteflow_gemini_key', apiKey.trim());
-    flash('API key saved.');
+    addToast('API key saved', 'success');
     setTimeout(() => setShowSettings(false), 800);
-  };
-
-  const flash = (msg) => {
-    setMessage(msg);
-    setTimeout(() => setMessage(''), 2500);
   };
 
   const handleSearchChange = (e) => {
@@ -84,8 +80,6 @@ export default function Toolbar({ onAddNote, onFitView, onSearch }) {
       </button>
 
       <div className={styles.spacer} />
-
-      {message && <span className={styles.flash}>{message}</span>}
 
       <button className={styles.iconBtn} onClick={handleExport} title="Export JSON">
         <Download size={15} />

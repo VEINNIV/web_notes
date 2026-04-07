@@ -169,3 +169,103 @@
   font-size: 12px;
   font-weight: 600;
 }
+
+.projectItemWrapper {
+  position: relative;
+  list-style: none;
+  margin-bottom: 2px;
+}
+
+.dragHandle {
+  cursor: grab;
+  color: var(--text-muted);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s;
+  padding: 4px 2px;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.projectBtn:hover .dragHandle {
+  opacity: 1;
+}
+
+.menuWrapper {
+  position: relative;
+  margin-left: auto;
+}
+
+.menuTrigger {
+  opacity: 0;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.menuTrigger:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.projectBtn:hover .menuTrigger,
+.menuTrigger:active {
+  opacity: 1;
+}
+
+.contextMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 50;
+  margin-top: 4px;
+}
+
+.contextOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 49;
+}
+
+.contextMenuInner {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  min-width: 140px;
+  z-index: 51;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.contextMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.contextMenuItem:hover {
+  background: var(--surface-2);
+}
+
+.dangerText {
+  color: #ef4444 !important;
+}
+
+.dangerText:hover {
+  background: #fef2f2 !important;
+}
+
