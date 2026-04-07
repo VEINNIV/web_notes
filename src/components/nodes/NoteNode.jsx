@@ -5,7 +5,8 @@
 import React, { useCallback } from 'react';
 import { Handle, Position, NodeResizer } from '@xyflow/react';
 import { formatDistanceToNow } from 'date-fns';
-import { Settings2 } from 'lucide-react';
+import { Settings2, Eye } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import TagPill from '../ui/TagPill';
 import ReminderBadge from '../ui/ReminderBadge';
 import { updateNote } from '../../hooks/useNotes';
@@ -14,10 +15,11 @@ import styles from './NoteNode.module.css';
 const MAX_VISIBLE_TAGS = 3;
 
 export default function NoteNode({ data, selected }) {
-  const { note, onOpen, isOverdue } = data;
+  const { note, onOpen, isOverdue, onFocus } = data;
   
   const [localTitle, setLocalTitle] = React.useState(note.title || '');
   const [localContent, setLocalContent] = React.useState(note.content || '');
+  const [isEditingContent, setIsEditingContent] = React.useState(false);
 
   React.useEffect(() => {
     setLocalTitle(note.title || '');
@@ -49,6 +51,11 @@ export default function NoteNode({ data, selected }) {
     e.stopPropagation();
     onOpen?.(note.id);
   }, [note.id, onOpen]);
+
+  const handleFocus = useCallback((e) => {
+    e.stopPropagation();
+    onFocus?.(note.id);
+  }, [note.id, onFocus]);
 
   return (
     <>
@@ -82,19 +89,38 @@ export default function NoteNode({ data, selected }) {
              onChange={e => setLocalTitle(e.target.value)}
              onBlur={handleBlur}
            />
-           <button className={styles.settingsBtn} onClick={handleOpenSettings} title="Open details">
-             <Settings2 size={14} />
-           </button>
+           <div className={styles.headerActions}>
+             <button className={styles.settingsBtn} onClick={handleFocus} title="Focus Mode">
+               <Eye size={14} />
+             </button>
+             <button className={styles.settingsBtn} onClick={handleOpenSettings} title="Open details">
+               <Settings2 size={14} />
+             </button>
+           </div>
         </div>
         
         <div className={styles.previewContainer}>
-          <textarea 
-            className={`${styles.contentInput} nodrag`}
-            placeholder="Type your notes here..."
-            value={localContent}
-            onChange={e => setLocalContent(e.target.value)}
-            onBlur={handleBlur}
-          />
+          {isEditingContent ? (
+            <textarea 
+              autoFocus
+              className={`${styles.contentInput} nodrag`}
+              placeholder="Type your notes here... (Markdown supported)"
+              value={localContent}
+              onChange={e => setLocalContent(e.target.value)}
+              onBlur={() => { handleBlur(); setIsEditingContent(false); }}
+            />
+          ) : (
+            <div 
+              className={styles.markdownWrapper} 
+              onClick={(e) => { e.stopPropagation(); setIsEditingContent(true); }}
+            >
+              {localContent ? (
+                <ReactMarkdown>{localContent}</ReactMarkdown>
+              ) : (
+                <span className={styles.markdownPlaceholder}>Type your notes here...</span>
+              )}
+            </div>
+          )}
         </div>
 
         {checklistTotal > 0 && (

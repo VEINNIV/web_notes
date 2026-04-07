@@ -3,7 +3,13 @@
   transition: opacity var(--dur) var(--ease), stroke-width var(--dur) var(--ease);
 }
 
-/* Animated flow overlay */
+.interactionWrapper {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 25px; /* Huge interactable area */
+  cursor: pointer;
+  pointer-events: stroke;
+}
 .flow {
   stroke-linecap: round;
   stroke-width: 1.5px;
@@ -45,4 +51,27 @@
 .label:hover {
   color: var(--text);
   border-color: var(--accent-dark);
+}
+
+.deleteBtn {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--danger);
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+  transition: all var(--dur-fast) var(--ease);
+  z-index: 999;
+}
+
+.deleteBtn:hover {
+  background: var(--danger-dim);
+  transform: scale(1.15) translate(-50%, -50%);
 }

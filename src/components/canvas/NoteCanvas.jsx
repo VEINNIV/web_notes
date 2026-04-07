@@ -66,6 +66,12 @@ function CanvasInner({ projectId }) {
             note,
             isOverdue: overdueIds.has(note.id),
             onOpen: setOpenNoteId,
+            onFocus: (id) => {
+              const node = posMap.get(id);
+              if (node) {
+                 fitView({ nodes: [{ id }], duration: 800, maxZoom: 1.5 });
+              }
+            }
           }
         };
       });
@@ -125,13 +131,27 @@ function CanvasInner({ projectId }) {
       if (updatesMap.size > 0) {
         await updateNodePositions(Array.from(updatesMap.values()));
       }
+      
+      const deletions = changes.filter((c) => c.type === 'remove');
+      if (deletions.length > 0) {
+         if (window.confirm("Are you sure you want to delete this note from the canvas? This cannot be undone.")) {
+            // Note: deleteNote must be imported from useNotes
+            for (const d of deletions) {
+               await import('../../hooks/useNotes').then(m => m.deleteNote(d.id));
+            }
+         }
+      }
     },
     [projectId]
   );
 
   const onEdgesChange = useCallback(async (changes) => {
     const deletions = changes.filter((c) => c.type === 'remove');
-    for (const d of deletions) await dbDeleteEdge(d.id);
+    if (deletions.length > 0) {
+      if (window.confirm("Are you sure you want to delete this connection?")) {
+        for (const d of deletions) await dbDeleteEdge(d.id);
+      }
+    }
   }, []);
 
   const onConnect = useCallback(async (connection) => {

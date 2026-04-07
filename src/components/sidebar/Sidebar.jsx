@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, GripVertical, MoreVertical, Edit2, Trash2, ArrowUpToLine } from 'lucide-react';
+import { Plus, GripVertical, MoreVertical, Edit2, Trash2, ArrowUpToLine, Folder } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -78,7 +78,7 @@ function SortableProjectItem({ proj, count, isActive, onSelectProject, onUpdate,
         <div {...attributes} {...listeners} className={styles.dragHandle}>
           <GripVertical size={14} className={styles.dragIcon} />
         </div>
-        <span className={styles.icon}>{proj.emoji}</span>
+        <span className={styles.icon}><Folder size={14} color="var(--accent)" /></span>
         <span className={styles.name}>{proj.name}</span>
         {proj.pinned && <ArrowUpToLine size={12} className={styles.pinnedIcon} style={{marginRight: 4, color: 'var(--accent)'}} />}
         <span className={styles.count}>{count}</span>
@@ -159,8 +159,7 @@ export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }
     e.preventDefault();
     if (!newName.trim()) { setAdding(false); return; }
     
-    const emojis = ['🚀', '🧠', '💼', '🎨', '📝', '✨', '⚡️', '🌍'];
-    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+    const randomEmoji = '📁';
     
     try {
       const id = await createProject(newName, randomEmoji);
@@ -175,7 +174,13 @@ export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, e) => {
+    e.stopPropagation();
+    const isSure = window.confirm(
+      "Are you absolutely sure you want to delete this project? All associated notes and mind maps will be permanently lost."
+    );
+    if (!isSure) return;
+    
     try {
       await deleteProject(id);
       addToast('Project deleted', 'success');
