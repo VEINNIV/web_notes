@@ -14,7 +14,14 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--card-sky), var(--card-violet), var(--card-rose));
+  background: linear-gradient(90deg, var(--card-sky), var(--card-violet), var(--card-rose), var(--card-sky));
+  background-size: 200% 100%;
+  animation: shimmerBar 3s linear infinite;
+}
+
+@keyframes shimmerBar {
+  from { background-position: 0% 0; }
+  to   { background-position: 200% 0; }
 }
 
 @keyframes slideDown {
@@ -115,4 +122,48 @@
 .error {
   color: var(--danger);
   font-size: var(--text-sm);
+}
+
+.hint {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+.icon {
+  color: var(--accent);
+}
+
+.modeBtnActive {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+
+.result {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-3);
+  max-height: 200px;
+  overflow-y: auto;
+  animation: resultFadeIn 0.3s ease both;
+}
+
+@keyframes resultFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.resultLine {
+  font-size: var(--text-sm);
+  color: var(--text);
+  line-height: var(--leading);
+  margin: 0 0 4px 0;
+}
+
+.resultSpacer {
+  height: 8px;
 }

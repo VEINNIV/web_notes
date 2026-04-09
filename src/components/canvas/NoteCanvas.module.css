@@ -3,6 +3,7 @@
   height: 100vh;
   position: relative;
   background: var(--bg);
+  transition: background var(--dur) var(--ease);
 }
 
 .emptyState {
@@ -16,10 +17,26 @@
   z-index: 10;
   text-align: center;
   user-select: none;
-  animation: fadeIn 1s ease 1s both; /* Delayed fade in */
+  animation: emptyFadeIn 0.8s ease 0.5s both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.emptyState::before {
+  content: '✦';
+  font-size: 32px;
+  opacity: 0.3;
+  animation: gentleBounce 3s ease-in-out infinite;
+}
+
+@keyframes emptyFadeIn {
+  from { opacity: 0; transform: translate(-50%, -50%) translateY(12px); }
+  to   { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+}
+
+@keyframes gentleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }

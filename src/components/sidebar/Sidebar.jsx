@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, GripVertical, MoreVertical, Edit2, Trash2, ArrowUpToLine, Folder } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, GripVertical, MoreVertical, Edit2, Trash2, ArrowUpToLine, Folder, FileText } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -19,7 +19,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 import styles from './Sidebar.module.css';
 import { useAllProjects, createProject, updateProject, deleteProject } from '../../hooks/useProjects';
-import { useNotification } from '../ui/NotificationProvider';
+import { useNotification } from '../../hooks/useNotification';
 
 function SortableProjectItem({ proj, count, isActive, onSelectProject, onUpdate, onDelete, onPinToTop }) {
   const [showMenu, setShowMenu] = useState(false);
@@ -120,17 +120,15 @@ export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }
   const [newName, setNewName] = useState('');
   const addToast = useNotification();
   
-  const [localProjects, setLocalProjects] = useState([]);
+  const [localOrder, setLocalOrder] = useState(null);
 
-  useEffect(() => {
-    if (projects) {
-      const sorted = [...projects].sort((a, b) => {
-         if (a.pinned === b.pinned) return (a.order || 0) - (b.order || 0);
-         return a.pinned ? -1 : 1;
-      });
-      setLocalProjects(sorted);
-    }
-  }, [projects]);
+  const localProjects = React.useMemo(() => {
+    const source = localOrder || projects || [];
+    return [...source].sort((a, b) => {
+      if (a.pinned === b.pinned) return (a.order || 0) - (b.order || 0);
+      return a.pinned ? -1 : 1;
+    });
+  }, [projects, localOrder]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -144,7 +142,7 @@ export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }
       const newIndex = localProjects.findIndex(p => p.id === over.id);
       
       const newOrder = arrayMove(localProjects, oldIndex, newIndex);
-      setLocalProjects(newOrder);
+      setLocalOrder(newOrder);
       
       // Persist new ordering and potential pin-state change to DB
       newOrder.forEach((proj, idx) => {
@@ -169,7 +167,7 @@ export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }
       setAdding(false);
       onSelectProject(id);
       addToast('Project created', 'success');
-    } catch (err) {
+    } catch {
       addToast('Failed to create project', 'error');
     }
   };
@@ -187,7 +185,7 @@ export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }
       if (activeProjectId === id) {
          onSelectProject('default');
       }
-    } catch (err) {
+    } catch {
       addToast('Failed to delete project', 'error');
     }
   };
@@ -195,7 +193,7 @@ export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }
   const handleUpdate = async (id, changes) => {
     try {
       await updateProject(id, changes);
-    } catch (err) {
+    } catch {
       addToast('Update failed', 'error');
     }
   };
@@ -204,7 +202,7 @@ export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }
     try {
       await updateProject(id, { pinned: isPinned });
       addToast(isPinned ? 'Project pinned to top' : 'Project unpinned', 'success');
-    } catch (err) {
+    } catch {
       addToast('Pin failed', 'error');
     }
   };
@@ -274,9 +272,13 @@ export default function Sidebar({ activeProjectId, onSelectProject, noteCounts }
       </div>
       
       <div className={styles.footer}>
-        <div className={styles.userSection}>
-           <div className={styles.avatar}>A</div>
-           <span>Workspace</span>
+        <div className={styles.statsRow}>
+          <span className={styles.statItem}>
+            <Folder size={12} /> {localProjects.length} projects
+          </span>
+          <span className={styles.statItem}>
+            <FileText size={12} /> {Array.from(noteCounts?.values() || []).reduce((a, b) => a + b, 0)} notes
+          </span>
         </div>
       </div>
     </aside>

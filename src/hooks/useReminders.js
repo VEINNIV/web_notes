@@ -7,9 +7,9 @@ import { useAllNotes } from './useNotes';
 
 export function useOverdueReminders(projectId) {
   const notes = useAllNotes(projectId);
-  const now   = new Date();
 
   return useMemo(() => {
+    const now = new Date();
     const overdueIds = new Set();
     if (!notes) return overdueIds;
     for (const note of notes) {

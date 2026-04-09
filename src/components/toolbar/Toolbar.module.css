@@ -12,6 +12,17 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
   z-index: 50;
+  animation: toolbarDrop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  backdrop-filter: blur(12px);
+}
+
+@keyframes toolbarDrop {
+  from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.btnText {
+  white-space: nowrap;
 }
 
 .primaryBtn {

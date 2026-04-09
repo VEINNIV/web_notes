@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Plus, Download, Upload, Settings, X, Eye, EyeOff, Search, Maximize } from 'lucide-react';
 import { exportBackup, importBackup } from '../../utils/backup';
-import { useNotification } from '../ui/NotificationProvider';
+import { useNotification } from '../../hooks/useNotification';
 import styles from './Toolbar.module.css';
 
 export default function Toolbar({ onAddNote, onFitView, onSearch }) {

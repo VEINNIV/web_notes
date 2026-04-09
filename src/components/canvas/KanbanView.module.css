@@ -14,7 +14,17 @@
   border-radius: var(--radius-xl);
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - var(--sp-12));
+  max-height: calc(100vh - 80px);
+  animation: colAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.column:nth-child(1) { animation-delay: 0ms; }
+.column:nth-child(2) { animation-delay: 80ms; }
+.column:nth-child(3) { animation-delay: 160ms; }
+
+@keyframes colAppear {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .colHeader {
@@ -40,6 +50,7 @@
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 12px;
+  transition: all var(--dur) var(--ease);
 }
 
 .colBody {
@@ -59,12 +70,25 @@
   padding: var(--sp-4);
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  transition: transform var(--dur-fast), box-shadow var(--dur-fast);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  animation: cardSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  overflow: hidden;
+}
+
+@keyframes cardSlideIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+  border-color: color-mix(in srgb, var(--card-accent) 35%, transparent);
+}
+
+.card:active {
+  transform: translateY(-1px);
+  transition-duration: 60ms;
 }
 
 .cardHighlight {
@@ -85,6 +109,9 @@
   font-weight: 700;
   color: var(--text);
   margin: 0 0 var(--sp-2) 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cardPreview {
@@ -96,6 +123,7 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-break: break-word;
 }
 
 .tags {
@@ -117,6 +145,17 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--surface);
-  color: var(--text-dim);
+  color: var(--text-muted);
   cursor: pointer;
+  transition: border-color var(--dur-fast);
+}
+
+.statusSelect:hover {
+  border-color: var(--accent);
+}
+
+.statusSelect:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dim);
 }

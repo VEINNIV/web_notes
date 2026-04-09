@@ -16,7 +16,7 @@ import Toolbar from '../toolbar/Toolbar';
 
 import {
   useAllNotes, useCanvasNodes, useCanvasEdges,
-  createNote, updateNodePositions,
+  createNote, updateNodePositions, deleteNote,
   addEdge as dbAddEdge, deleteEdge as dbDeleteEdge, updateEdge as dbUpdateEdge,
 } from '../../hooks/useNotes';
 import { useOverdueReminders } from '../../hooks/useReminders';
@@ -75,6 +75,7 @@ function CanvasInner({ projectId }) {
           }
         };
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notes, canvasNodes, overdueIds, searchQuery]);
 
   const rfEdges = useMemo(() => {
@@ -95,7 +96,8 @@ function CanvasInner({ projectId }) {
     if (rfNodes.length > 0) {
       setTimeout(() => fitView({ padding: 0.3, maxZoom: 1, duration: 800 }), 100);
     }
-  }, [projectId]); // Run when project changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
 
   // Global Keyboard shortcuts
   useEffect(() => {
@@ -137,11 +139,12 @@ function CanvasInner({ projectId }) {
          if (window.confirm("Are you sure you want to delete this note from the canvas? This cannot be undone.")) {
             // Note: deleteNote must be imported from useNotes
             for (const d of deletions) {
-               await import('../../hooks/useNotes').then(m => m.deleteNote(d.id));
+               await deleteNote(d.id);
             }
          }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [projectId]
   );
 

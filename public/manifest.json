@@ -1,0 +1,19 @@
+{
+  "name": "NoteFlow — Canvas Knowledge Workspace",
+  "short_name": "NoteFlow",
+  "description": "A visual, offline-first knowledge workspace with infinite canvas, Kanban boards, and AI-powered note management.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf8f5",
+  "theme_color": "#8b5cf6",
+  "orientation": "any",
+  "categories": ["productivity", "education", "utilities"],
+  "icons": [
+    {
+      "src": "/noteflow-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -9,7 +9,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* ── Design Tokens ────────────────────────────────────────────────────────── */
-:root {
+:root,
+[data-theme="light"] {
   /* Backgrounds — warm whites */
   --bg:        #faf8f5;
   --surface:   #ffffff;
@@ -75,6 +76,44 @@
   --ease:      cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out:  cubic-bezier(0, 0, 0.2, 1);
   --dur-fast:  120ms; --dur: 220ms; --dur-slow: 320ms;
+}
+
+/* ── Dark Theme ──────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg:        #111010;
+  --surface:   #1a1918;
+  --surface-2: #242322;
+  --surface-3: #2e2d2b;
+
+  --border:    #333231;
+  --border-2:  #444240;
+
+  --text:      #ece8e1;
+  --text-muted:#9a9590;
+  --text-dim:  #5c5854;
+
+  --accent:       #a78bfa;
+  --accent-dark:  #8b5cf6;
+  --accent-dim:   rgba(167, 139, 250, 0.12);
+  --accent-glow:  rgba(167, 139, 250, 0.25);
+
+  --danger:     #f87171;
+  --danger-dim: rgba(248, 113, 113, 0.12);
+  --warning:    #fbbf24;
+  --success:    #34d399;
+
+  --card-violet: #a78bfa;
+  --card-rose:   #f472b6;
+  --card-teal:   #2dd4bf;
+  --card-amber:  #fbbf24;
+  --card-sky:    #60a5fa;
+  --card-emerald:#34d399;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow:    0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 /* ── Reset ────────────────────────────────────────────────────────────────── */
@@ -177,4 +216,28 @@ body {
   box-shadow: var(--shadow-sm) !important;
 }
 .react-flow__minimap-mask { fill: rgba(250, 248, 245, 0.7) !important; }
+[data-theme="dark"] .react-flow__minimap-mask { fill: rgba(17, 16, 16, 0.7) !important; }
 .react-flow__minimap-node { rx: 4; }
+
+/* ── Modal animation ─────────────────────────────────────────────────────── */
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Dark theme specific ─────────────────────────────────────────────────── */
+[data-theme="dark"] .react-flow__controls-button:hover {
+  background: var(--surface-3) !important;
+}
+
+[data-theme="dark"] ::selection {
+  background: rgba(167, 139, 250, 0.25);
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

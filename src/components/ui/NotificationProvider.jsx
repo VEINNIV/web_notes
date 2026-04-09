@@ -1,12 +1,7 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { X, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import styles from './Notification.module.css';
-
-const NotificationContext = createContext(null);
-
-export function useNotification() {
-  return useContext(NotificationContext);
-}
+import { NotificationContext } from '../../contexts/NotificationContext';
 
 export function NotificationProvider({ children }) {
   const [toasts, setToasts] = useState([]);

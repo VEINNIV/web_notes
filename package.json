@@ -1,8 +1,22 @@
 {
-  "name": "web_notes",
+  "name": "noteflow",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
   "type": "module",
+  "description": "A visual, offline-first knowledge workspace with infinite canvas, Kanban boards, and AI-powered note management.",
+  "author": "Ahmet",
+  "license": "MIT",
+  "keywords": [
+    "notes",
+    "knowledge-management",
+    "mind-map",
+    "canvas",
+    "kanban",
+    "offline-first",
+    "react",
+    "indexeddb",
+    "gemini-ai"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
